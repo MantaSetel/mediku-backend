@@ -2,11 +2,11 @@ const process = require('process');
 
 const config = {
   development: {
-    username: "root",
-    password: null,
-    database: "mediku-db",
-    host: "127.0.0.1",
-    dialect: "mysql"
+    "username": "root",
+    "password": null,
+    "database": "medikudb",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
   },
   test: {
     username: "root",
