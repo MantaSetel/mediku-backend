@@ -5,6 +5,7 @@ const app = express()
 
 const db = require('./models')
 const routes = require('./routes')
+const deserializeUser = require('./middleware/deserializeUser')
 
 const PORT = process.env.PORT || 3000
 const HOST = 'localhost'
@@ -13,6 +14,7 @@ app.use(bodyParser.json({ limit: '10mb' }))
 app.use(express.json())
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))
+app.use(deserializeUser)
 
 db.sequelize.sync().then(() => {
     console.log('Database connected')
