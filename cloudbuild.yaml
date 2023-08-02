@@ -18,4 +18,5 @@ steps:
               'managed',
               '--allow-unauthenticated',
           ]
-image: 'gcr.io/$PROJECT_ID/mediku-backend'
+images:
+    - 'gcr.io/$PROJECT_ID/mediku-backend'
