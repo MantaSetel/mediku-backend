@@ -7,7 +7,7 @@ const db = require('./models')
 const routes = require('./routes')
 const deserializeUser = require('./middleware/deserializeUser')
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 8080
 const HOST = 'localhost'
 
 app.use(bodyParser.json({ limit: '10mb' }))
