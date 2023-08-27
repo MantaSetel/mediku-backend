@@ -31,4 +31,6 @@ module.exports = (app) => {
     app.get('/api/user', requireUser, UserController.getUserProfileHandler)
 
     app.post('/api/malnutrition', requireUser, validateRequest(MalnutritionSchema.createMalnutritionSchema), MalnutritionController.predictHandler)
+
+    app.put('/api/malnutrition-results/:id', requireUser, MalnutritionController.updateMalnutritionHandler)
 }

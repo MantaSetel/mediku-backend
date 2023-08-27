@@ -1,5 +1,6 @@
 const tf = require("@tensorflow/tfjs-node");
 const customRound = require("../utils/customRound");
+const { MalnutritionResult } = require('../models')
 
 let model = null;
 
@@ -26,9 +27,23 @@ const getPrediction = async ({ gender, agePerMonth, birthWeight, bodyWeight, bir
     return customRound(result);
 }
 
+const saveResult = async (result) => {
+    return MalnutritionResult.create(result)
+}
+
+const updateDataById = async (id, updateData) => {
+    return MalnutritionResult.update({ ...updateData }, {
+        where: {
+            id
+        }
+    })
+}
+
 const MalnutritionService = {
     getPrediction,
-    loadModel
+    loadModel,
+    saveResult,
+    updateDataById
 }
 
 module.exports = MalnutritionService
