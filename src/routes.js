@@ -25,4 +25,6 @@ module.exports = (app) => {
         requireUser,
         SessionController.deleteSessionHandler
     )
+
+    app.get('/api/user', requireUser, UserController.getUserProfileHandler)
 }
