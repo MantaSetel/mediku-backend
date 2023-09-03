@@ -1,3 +1,5 @@
+const multer = require('multer')
+const FoodNutritionController = require('./controllers/food-nutrition.controller')
 const MalnutritionController = require('./controllers/mallnutrition.controller')
 const SessionController = require('./controllers/session.controller')
 const UserController = require('./controllers/user.controller')
@@ -8,6 +10,9 @@ const MalnutritionSchema = require('./schemas/malnutrition.schema')
 const SessionSchema = require('./schemas/session.schema')
 
 const UserSchema = require('./schemas/user.schema')
+
+const storage = multer.memoryStorage()
+const upload = multer({ storage: storage })
 
 module.exports = (app) => {
     app.post(
@@ -30,7 +35,22 @@ module.exports = (app) => {
 
     app.get('/api/user', requireUser, UserController.getUserProfileHandler)
 
-    app.post('/api/malnutrition', requireUser, validateRequest(MalnutritionSchema.createMalnutritionSchema), MalnutritionController.predictHandler)
+    app.post(
+        '/api/malnutrition',
+        requireUser,
+        validateRequest(MalnutritionSchema.createMalnutritionSchema),
+        MalnutritionController.predictHandler
+    )
 
-    app.put('/api/malnutrition-results/:id', requireUser, MalnutritionController.updateMalnutritionHandler)
+    app.put(
+        '/api/malnutrition-results/:id',
+        requireUser,
+        MalnutritionController.updateMalnutritionHandler
+    )
+
+    app.post(
+        '/api/food-nutrition/detect',
+        upload.single('image'),
+        FoodNutritionController.detectFoodNutritionHandler
+    )
 }

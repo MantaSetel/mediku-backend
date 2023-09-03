@@ -7,6 +7,7 @@ const db = require('./models')
 const routes = require('./routes')
 const deserializeUser = require('./middleware/deserializeUser')
 const MalnutritionService = require('./services/malnutrition.service')
+const FoodNutritionService = require('./services/food-nutrition.service')
 
 const PORT = process.env.PORT || 8080
 const HOST = 'localhost'
@@ -20,6 +21,7 @@ app.use(deserializeUser)
 db.sequelize.sync().then(async () => {
     console.log('Database connected')
     await MalnutritionService.loadModel()
+    await FoodNutritionService.loadModel()
     app.listen(PORT, HOST, () => {
         console.log(`Server running at http://${HOST}:${PORT}`)
         routes(app)
