@@ -50,7 +50,26 @@ module.exports = (app) => {
 
     app.post(
         '/api/food-nutrition/detect',
+        requireUser,
         upload.single('image'),
         FoodNutritionController.detectFoodNutritionHandler
+    )
+
+    app.put(
+        '/api/food-nutrition/results/:id',
+        requireUser,
+        FoodNutritionController.updateFoodNutritionHandler
+    )
+
+    app.get(
+        '/api/malnutrition-results',
+        requireUser,
+        MalnutritionController.getResultsHandler
+    )
+
+    app.get(
+        '/api/malnutrition-results/:id/daily-detects',
+        requireUser,
+        MalnutritionController.getDailyDetectionsHandler
     )
 }

@@ -1,35 +1,90 @@
+const DetectionDailyService = require('../services/detection-daily.service')
 const FoodNutritionService = require('../services/food-nutrition.service')
+const FoodService = require('../services/food.service')
+const MalnutritionResultService = require('../services/malnutrition-result.service')
 
-const tf = require('@tensorflow/tfjs-node')
+const createApiResponse = require('../utils/createApiResponse')
 
 const detectFoodNutritionHandler = async (req, res) => {
     try {
-        const model = FoodNutritionService.getModel()
-
         const imageBuffer = req.file.buffer
-        const imageTensor = tf.node.decodeImage(imageBuffer)
-        const resizedImage = tf.image.resizeBilinear(imageTensor, [224, 224])
-        const processedImage = resizedImage.div(tf.scalar(255))
-        const batchedInput = processedImage.expandDims(0)
+        const malnutritionResultId = req.body.malnutritionResultId
 
-        const rgbImage = batchedInput.slice([0, 0, 0, 0], [1, 224, 224, 3])
+        const { predictedClassIndex, confidence } =
+            await FoodNutritionService.detectNutrition(imageBuffer)
 
-        const prediction = await model.predict(rgbImage)
-        const predictedClassIndex = prediction.argMax(-1).dataSync()[0]
-        const confidence = prediction.max().dataSync()[0]
+        const food = await FoodService.getFoodByClassIndex(predictedClassIndex)
 
-        return res.send({
+        const nutrition = await FoodNutritionService.getFoodNutritionByFoodId(
+            food.id
+        )
+
+        console.log(nutrition)
+
+        const userId = res.locals.user.id
+
+        const detectionDaily = {
+            userId,
+            nutritionId: nutrition.id,
+            isSaved: false,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        }
+
+        if (!malnutritionResultId) {
+            const latestMalnutrition =
+                await MalnutritionResultService.getLatestMalnutritionResult(
+                    userId
+                )
+            detectionDaily.malnutritionResultId = latestMalnutrition.id
+        } else {
+            detectionDaily.malnutritionResultId = malnutritionResultId
+        }
+
+        const newDetectionDaily =
+            await DetectionDailyService.createDetectionDaily(detectionDaily)
+
+        const responseData = {
             predictedClassIndex,
             confidence,
-        })
+            newDetectionDaily,
+            nutrition,
+            food,
+        }
+
+        return res.status(201).send(createApiResponse(true, responseData, null))
     } catch (error) {
-        console.log(error)
-        return res.status(500).send(error.message)
+        return res
+            .status(500)
+            .send(createApiResponse(false, null, error.message))
+    }
+}
+
+const updateFoodNutritionHandler = async (req, res) => {
+    const id = req.params.id
+    const userId = res.locals.user.id
+    const updateData = req.body
+
+    try {
+        const updatedDetectionDaily =
+            await DetectionDailyService.updateDetectionDaily(
+                id,
+                userId,
+                updateData
+            )
+        return res
+            .status(201)
+            .send(createApiResponse(true, updatedDetectionDaily, null))
+    } catch (error) {
+        return res
+            .status(500)
+            .send(createApiResponse(false, null, error.message))
     }
 }
 
 const FoodNutritionController = {
     detectFoodNutritionHandler,
+    updateFoodNutritionHandler,
 }
 
 module.exports = FoodNutritionController
